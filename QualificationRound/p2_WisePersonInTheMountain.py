@@ -13,7 +13,8 @@ threshold = 0.7
 TPR, FPR = 0, 0
 EER = 0
 
-curr_data_set = data_set + '1'
+data_set_folder = str(input())
+curr_data_set = data_set + data_set_folder
 
 regex = 'ca(\d+)\.txt|wpa(\d+)\.txt'
 re_obj = re.compile(regex)
@@ -31,7 +32,7 @@ for root_, dir_, files in os.walk(curr_data_set):
         item_content = ''
         with open(item_path, 'r') as f:
             # read file content
-            item_content = f.readline().strip(' ').strip('\n').strip('%')
+            item_content = f.readline().strip('% \n')
 
         matches = re_obj.match(item)
         if matches.group(1) == None:
