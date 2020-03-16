@@ -4,29 +4,23 @@
 import os
 import re
 
-# Paths
-root = r'/home/littlewing/Projects/MachineLearningMicrosoftPetnica/QualificationRound/p2_publicDataSet/'
-inputs = r'/home/littlewing/Projects/MachineLearningMicrosoftPetnica/QualificationRound/p2_publicDataSet/inputs/'
-data_set = r'/home/littlewing/Projects/MachineLearningMicrosoftPetnica/QualificationRound/p2_publicDataSet/set/'
-
 questions = {'Yes': 0, 'No': 0, 'Valid': 0, 'Total': 0}
 threshold = 0.7
+TP, FP, FN, TN = 0, 0, 0, 0
 TPR, FPR = 0.0, 0.0
 EER = 0.0
 
-data_set_folder = str(input())
-curr_data_set = data_set + data_set_folder
+data_set_folder = input()
 
 regex = 'ca(\d+)\.txt|wpa(\d+)\.txt'
 re_obj = re.compile(regex)
 
 mapa_ca = dict()
 mapa_wpa = dict()
-
-mapa_valid = []
+mapa_predictions = dict()
 
 # Get ca and wpa file content
-for root_, dir_, files in os.walk(curr_data_set):
+for root_, dir_, files in os.walk(data_set_folder):
     for item in files:
         # Get file path
         item_path = root_ + '/' + item
@@ -49,14 +43,36 @@ for root_, dir_, files in os.walk(curr_data_set):
 # Get valid questions
 for k in mapa_ca:
     if k in mapa_wpa:
-        mapa_valid.append(k)
         questions['Valid'] += 1
 
-for el in mapa_valid:
-    pass
-    # print("{:>3} : {:>3} : {:>3}".format(el, mapa_ca[el], mapa_wpa[el]))
+        correct_answer = mapa_ca[k]
+        confidence = mapa_wpa[k]
+        prediction = 'False'
+
+        if (confidence >= threshold):
+            prediction = 'Yes'
+
+        if prediction == 'Yes':
+            if correct_answer == 'Yes':
+                TP += 1
+            else:
+                FP += 1
+        else:
+            if correct_answer == 'Yes':
+                FN += 1
+            else:
+                TN += 1
+
+
+def TPR_FPR(tp, fp, p, n):
+    tpr, fpr = tp / p, fp / n
+
+    return (tpr, fpr)
+
 
 pq, nq, vq, tq = questions.values()
+TPR, FPR = TPR_FPR(TP, FP, questions['Yes'], questions['No'])
+TPR = round(TPR, 3)
+FPR = round(FPR, 3)
 
 print('{},{},{},{},{},{}'.format(pq, nq, vq, TPR, FPR, EER))
-print(questions)
