@@ -19,6 +19,9 @@ mapa_ca = dict()
 mapa_wpa = dict()
 mapa_predictions = dict()
 
+valid_yes = 0
+valid_no = 0
+
 # Get ca and wpa file content
 for root_, dir_, files in os.walk(data_set_folder):
     for item in files:
@@ -45,6 +48,13 @@ for k in mapa_ca:
     if k in mapa_wpa:
         questions['Valid'] += 1
 
+        if mapa_ca[k] == 'Yes':
+            valid_yes += 1
+        elif mapa_ca[k] == 'No':
+            valid_no += 1
+        else:
+            pass
+
         correct_answer = mapa_ca[k]
         confidence = mapa_wpa[k]
         prediction = 'False'
@@ -69,9 +79,8 @@ def TPR_FPR(tp, fp, p, n):
 
     return (tpr, fpr)
 
-
 pq, nq, vq, tq = questions.values()
-TPR, FPR = TPR_FPR(TP, FP, questions['Yes'], questions['No'])
+TPR, FPR = TPR_FPR(TP, FP, valid_yes, valid_no)
 TPR = round(TPR, 3)
 FPR = round(FPR, 3)
 
